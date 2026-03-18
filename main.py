@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from schemas.request import AnalyzeRequest
-from schemas.response import AnalyzeResponse
+from app.schemas.request import AnalyzeRequest
+from app.schemas.response import AnalyzeResponse
 
 app = FastAPI()
 
