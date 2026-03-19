@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.schemas.request import AnalyzeRequest
 from app.schemas.response import AnalyzeResponse
-from app.services.extractor import resume_extractor
+from app.services.extractor import resume_extractor, job_extractor
 
 app = FastAPI()
 
@@ -13,26 +13,13 @@ def read_root():
 @app.post("/analyze")
 def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
     resume_response = resume_extractor(request.resume_text)
+    job_response = job_extractor(request.job_description)
     print(resume_response)
     return {
         "resume_skills": resume_response.skills,
-        "job_skills": ["Javascript"],
-        "missing_skills": ["Python"],
-        "match_score": 89,
-        "resume_suggestions": [
-            "Highlight backend API development experience more clearly.",
-            "Add deployment or infrastructure-related experience if relevant.",
-            "Tailor your project bullets to match the job description language."
-        ],
-        "cover_letter": (
-            "Dear Hiring Team,\n\n"
-            "I am excited to apply for this role. My background in Python, FastAPI, "
-            "and full-stack development aligns well with the position requirements. "
-            "I have worked on building scalable software products and enjoy solving "
-            "practical engineering problems.\n\n"
-            "I would welcome the opportunity to contribute my experience and continue "
-            "growing in a strong engineering environment.\n\n"
-            "Sincerely,\n"
-            "Your Name"
-        )
+        "job_skills": job_response.skills,
+        "missing_skills": [""],
+        "match_score": 0,
+        "resume_suggestions": [],
+        "cover_letter": ""
     }

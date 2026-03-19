@@ -1,4 +1,5 @@
 from openai import OpenAI
+import json
 from app.config import OPENAI_API_KEY, OPENAI_MODEL
 from app.schemas.response import SkillExtractionResponse
 
@@ -20,4 +21,4 @@ def call_llm(prompt: str, input: str) -> SkillExtractionResponse:
         input=input,
     )
     print(response.json())
-    return response.output_text
+    return json.loads(response.output_text)
