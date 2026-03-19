@@ -18,7 +18,7 @@ def resume_extractor(resume_text: str) -> SkillExtractionResponse:
     response = call_llm(prompt, resume_text)
     print(response)
     response["skills"] = normalize_skills(response.get("skills", []))
-    return SkillExtractionResponse.model_validate_json(response)
+    return SkillExtractionResponse.model_validate(response)
 
 def job_extractor(job_description:str) -> SkillExtractionResponse:
     """Extract skills from a job description using the LLM."""
@@ -26,4 +26,4 @@ def job_extractor(job_description:str) -> SkillExtractionResponse:
     response = call_llm(prompt, job_description)
     print(response)
     response["skills"] = normalize_skills(response.get("skills", []))
-    return SkillExtractionResponse.model_validate_json(response)
+    return SkillExtractionResponse.model_validate(response)
