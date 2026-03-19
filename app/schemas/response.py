@@ -1,5 +1,8 @@
 from pydantic import BaseModel
 
+class SkillExtractionResponse(BaseModel):
+    skills: list[str]
+
 class AnalyzeResponse(BaseModel):
     resume_skills: list[str]
     job_skills: list[str]

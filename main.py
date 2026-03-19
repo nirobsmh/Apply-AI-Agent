@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.schemas.request import AnalyzeRequest
 from app.schemas.response import AnalyzeResponse
+from app.services.extractor import resume_extractor
 
 app = FastAPI()
 
@@ -11,8 +12,10 @@ def read_root():
 
 @app.post("/analyze")
 def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
+    resume_response = resume_extractor(request.resume_text)
+    print(resume_response)
     return {
-        "resume_skills": ["Python", "Javascript"],
+        "resume_skills": resume_response.skills,
         "job_skills": ["Javascript"],
         "missing_skills": ["Python"],
         "match_score": 89,
