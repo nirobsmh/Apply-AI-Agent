@@ -4,6 +4,7 @@ from app.schemas.response import SkillExtractionResponse
 from app.schemas.request import AnalyzeRequest
 from app.services.llm_service import load_prompt
 from app.services.llm_service import call_llm
+from app.schemas.response import ResumeSuggestionsResponse
 
 def normalize_skills(skills: list[str]) -> list[str]:
     """Normalize a list of skills for consistent comparison."""
@@ -27,3 +28,11 @@ def job_extractor(job_description:str) -> SkillExtractionResponse:
     print(response)
     response["skills"] = normalize_skills(response.get("skills", []))
     return SkillExtractionResponse.model_validate(response)
+
+def resume_suggestions(resume_text: str, job_description: str, resume_skills: list[str], missing_skills: list[str], match_score: int) -> ResumeSuggestionsResponse:
+    """Suggest resume improvements based on the resume, job description, resume skills, missing skills, and match score."""
+    prompt = load_prompt("app/prompts/resume_suggestions.txt")
+    inputText = "Resume text: " + resume_text + "\n\n" + "Job description: " + job_description + "\n\n" + "Resume skills: " + ", ".join(resume_skills) + "\n\n" + "Missing skills: " + ", ".join(missing_skills) + "\n\n" + "Match score: " + str(match_score)
+    response = call_llm(prompt, inputText)
+    print(response)
+    return ResumeSuggestionsResponse.model_validate(response)

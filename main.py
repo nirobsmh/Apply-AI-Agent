@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from app.schemas.request import AnalyzeRequest
 from app.schemas.response import AnalyzeResponse
-from app.services.extractor import resume_extractor, job_extractor
+from app.services.extractor import resume_extractor, job_extractor, resume_suggestions
 from app.services.matcher import compute_match
+from app.services.cover_letter import cover_letter_f
+
 
 app = FastAPI()
 
@@ -15,16 +17,24 @@ def read_root():
 def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
     try:
         resume_response = resume_extractor(request.resume_text)
+        print("resume_response: ", resume_response)
         job_response = job_extractor(request.job_description)
+        print("job_response: ", job_response)
         common_skills, missing_skills, match_score = compute_match(resume_response.skills, job_response.skills)
-        print(resume_response)
+        print("common_skills: ", common_skills)
+        print("missing_skills: ", missing_skills)
+        print("match_score: ", match_score)
+        resume_suggestions_response = resume_suggestions(request.resume_text, request.job_description, resume_response.skills, missing_skills, match_score)
+        print("resume_suggestions_response: ", resume_suggestions_response)
+        cover_letter_response = cover_letter_f(request.resume_text, request.job_description)
+        print("cover_letter_response: ", cover_letter_response)
         return {
             "resume_skills": resume_response.skills,
             "job_skills": job_response.skills,
             "missing_skills": missing_skills,
             "match_score": match_score,
-            "resume_suggestions": [],
-            "cover_letter": ""
+            "resume_suggestions": resume_suggestions_response.suggestions,
+            "cover_letter": cover_letter_response.cover_letter
         }
     except Exception as e:
         return {"error": str(e)}
