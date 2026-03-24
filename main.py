@@ -1,9 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, Form, UploadFile
 from app.schemas.request import AnalyzeRequest
 from app.schemas.response import AnalyzeResponse
 from app.services.extractor import resume_extractor, job_extractor, resume_suggestions
 from app.services.matcher import compute_match
 from app.services.cover_letter import cover_letter_f
+from app.services.pdf_parser import parse_pdf
+from app.services.analyzer import run_analyzer
+from app.schemas.response import CoverLetterResponse
 
 
 app = FastAPI()
@@ -36,5 +39,15 @@ def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
             "resume_suggestions": resume_suggestions_response.suggestions,
             "cover_letter": cover_letter_response.cover_letter
         }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/analyze_upload")
+async def analyze_upload(resume_file: UploadFile = File(...), job_description: str = Form(...)) -> "CoverLetterResponse":
+    try:
+        file_bytes = await resume_file.read()
+        resume_text = parse_pdf(file_bytes)
+        return run_analyzer(resume_text, job_description)
     except Exception as e:
         return {"error": str(e)}
