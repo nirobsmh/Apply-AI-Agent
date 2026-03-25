@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from app.schemas.request import AnalyzeRequest
 from app.schemas.response import AnalyzeResponse
 from app.services.extractor import resume_extractor, job_extractor, resume_suggestions
@@ -10,6 +11,14 @@ from app.schemas.response import CoverLetterResponse
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
