@@ -54,7 +54,7 @@ export default function Home() {
               analysis.
             </p>
           </section>
-          <section>
+          <section className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
               <label htmlFor="resume" className="text-slate-500">
                 Upload Resume
@@ -79,14 +79,16 @@ export default function Home() {
                 onChange={handleJobDescriptionChange}
               />
             </div>
-            <button
-              className="bg-blue-500 text-white rounded-md p-2 cursor-pointer"
-              onClick={handleAnalyze}
-            >
-              Analyze
-            </button>
+            <div className="flex justify-center">
+              <button
+                className="bg-blue-500 text-white rounded-md p-2 cursor-pointer"
+                onClick={handleAnalyze}
+              >
+                Analyze
+              </button>
+            </div>
           </section>
-          <section>
+          <section className="flex flex-col gap-2 w-full">
             <div className="flex flex-col gap-2">
               <label htmlFor="cover-letter" className="text-slate-500">
                 Cover Letter
