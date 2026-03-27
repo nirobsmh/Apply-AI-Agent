@@ -1,4 +1,4 @@
-# Job-App-AI-Agent
+# Apply-AI-Agent
 
 Minimal MVP for analyzing a resume against a job description.
 
