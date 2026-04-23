@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useState } from "react";
 import { CoverLetterResponse } from "./types/analysis";
 
@@ -7,12 +6,13 @@ export default function Home() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState<string>("");
   const [jobDescription, setJobDescription] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
   const handleResumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setResumeFile(file);
-      console.log(file);
     }
   };
 
@@ -23,22 +23,50 @@ export default function Home() {
   };
 
   const handleAnalyze = async () => {
-    console.log("Analyzing...");
-    console.log(resumeFile);
-    console.log(jobDescription);
-    if (!resumeFile) return;
+    if (!resumeFile) {
+      setErrorMessage("Please upload a resume PDF.");
+      return;
+    }
+
+    if (!jobDescription.trim()) {
+      setErrorMessage("Please enter a job description.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("resume_file", resumeFile);
-    formData.append("job_description", jobDescription);
+    formData.append("job_description", jobDescription.trim());
 
-    const response = await fetch("http://127.0.0.1:8000/analyze_upload", {
-      method: "POST",
-      body: formData,
-    });
+    setErrorMessage("");
+    setIsAnalyzing(true);
 
-    const data = await response.json() as CoverLetterResponse;
-    setCoverLetter(data.cover_letter);
+    try {
+      const response = await fetch("http://127.0.0.1:8000/analyze_upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let detail = "Failed to analyze resume.";
+        try {
+          const errorPayload = (await response.json()) as { detail?: string };
+          if (typeof errorPayload.detail === "string" && errorPayload.detail) {
+            detail = errorPayload.detail;
+          }
+        } catch {
+          // Keep default detail message.
+        }
+        setErrorMessage(detail);
+        return;
+      }
+
+      const data = (await response.json()) as CoverLetterResponse;
+      setCoverLetter(data.cover_letter ?? "");
+    } catch {
+      setErrorMessage("Unable to reach server. Please try again.");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -81,12 +109,16 @@ export default function Home() {
             </div>
             <div className="flex justify-center">
               <button
-                className="bg-blue-500 text-white rounded-md p-2 cursor-pointer"
+                className={`bg-blue-500 text-white rounded-md p-2 ${isAnalyzing ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                 onClick={handleAnalyze}
+                disabled={isAnalyzing}
               >
-                Analyze
+                {isAnalyzing ? "Analyzing..." : "Analyze"}
               </button>
             </div>
+            {errorMessage ? (
+              <p className="text-sm text-red-600">{errorMessage}</p>
+            ) : null}
           </section>
           <section className="flex flex-col gap-2 w-full">
             <div className="flex flex-col gap-2">
